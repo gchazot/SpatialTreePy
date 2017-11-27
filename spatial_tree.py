@@ -1,3 +1,5 @@
+import math
+
 class OutOfBounds(Exception):
     pass
 
@@ -6,6 +8,20 @@ class Point:
     def __init__(self, x, y):
         self.x = x
         self.y = y
+
+    def distance_plane(self, other):
+        return math.sqrt((self.x - other.x) ** 2 + (self.y - other.y) ** 2)
+
+    def distance_rad(self, other):
+        return math.acos(
+            math.sin(self.x) * math.sin(other.x) +
+            math.cos(self.x) * math.cos(other.x) * math.cos(self.y - other.y)
+        )
+
+    def distance_deg(self, other):
+        self_rad = Point(math.radians(self.x), math.radians(self.y))
+        other_rad = Point(math.radians(other.x), math.radians(other.y))
+        return math.degrees(self_rad.distance_rad(other_rad))
 
 
 class Rectangle:
@@ -78,6 +94,18 @@ class SpatialLeaf:
     def __iter__(self):
         return self.points.__iter__()
 
+    def closest(self, other_point):
+        closest = None
+        closest_dist = None
+        for point in self.points:
+            if point == other_point:
+                continue
+            distance = point.distance_deg(other_point)
+            if closest_dist is None or distance < closest_dist:
+                closest = point
+                closest_dist = distance
+        return closest
+
 
 class SpatialTree:
     def __init__(self, bounds, max_items_per_leaf=10, leaves=None):
@@ -125,3 +153,8 @@ class SpatialTree:
         for leaf in self.leaves:
             for point in leaf:
                 yield point
+
+    def closest(self, point):
+        for leaf in self.leaves:
+            if point in leaf:
+                return leaf.closest(point)

@@ -75,15 +75,16 @@ def solution2():
             continue
         index.add(flight)
 
-    debug(index)
-    debug(index.count())
-    debug(index.max_count())
-    debug(index.max_depth())
-
-    i = 0
-    for _ in index:
-        i += 1
-    debug(i)
+    for flight in index:
+        closest = index.closest(flight)
+        if closest is not None:
+            print("{} {} {:.1f} KM".format(
+                flight.call_sign,
+                closest.call_sign,
+                flight.distance(closest)
+            ))
+        else:
+            debug("No Closest {}".format(flight.call_sign))
 
 
 if __name__ == "__main__":
