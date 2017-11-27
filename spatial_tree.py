@@ -17,12 +17,6 @@ class Rectangle:
         self.bottom = bottom
         self.top = top
 
-    def init_from(self, other):
-        self.left = other.left
-        self.right = other.right
-        self.bottom = other.bottom
-        self.top = other.top
-
     def __str__(self):
         return "{bottom}:{left}/{top}:{right}".format(**self.__dict__)
 
