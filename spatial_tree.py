@@ -1,27 +1,23 @@
 import math
 
+
 class OutOfBounds(Exception):
     pass
 
 
 class Point:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-    def distance_plane(self, other):
-        return math.sqrt((self.x - other.x) ** 2 + (self.y - other.y) ** 2)
+    def __init__(self, latitude, longitude):
+        self.lat = math.radians(latitude)
+        self.lon = math.radians(longitude)
 
     def distance_rad(self, other):
         return math.acos(
-            math.sin(self.x) * math.sin(other.x) +
-            math.cos(self.x) * math.cos(other.x) * math.cos(self.y - other.y)
+            math.sin(self.lat) * math.sin(other.lat) +
+            math.cos(self.lat) * math.cos(other.lat) * math.cos(self.lon - other.lon)
         )
 
     def distance_deg(self, other):
-        self_rad = Point(math.radians(self.x), math.radians(self.y))
-        other_rad = Point(math.radians(other.x), math.radians(other.y))
-        return math.degrees(self_rad.distance_rad(other_rad))
+        return math.degrees(self.distance_rad(other))
 
 
 class Rectangle:
@@ -37,8 +33,8 @@ class Rectangle:
         return "{bottom}:{left}/{top}:{right}".format(**self.__dict__)
 
     def __contains__(self, point):
-        return (self.left <= point.x < self.right and
-                self.bottom <= point.y < self.top)
+        return (self.left <= point.lat < self.right and
+                self.bottom <= point.lon < self.top)
 
     def centric_split(self):
         """Splits a rectangle in 4 equal rectangles
