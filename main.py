@@ -85,10 +85,9 @@ class ForForLoop(Solution):
 
 
 class WithSpatialIndex(Solution):
-    def __init__(self, max_items_per_leaf):
+    def __init__(self):
         self.index = SpatialTree(
-            Rectangle(-90.0, 90.0, -180.0, 180.0),
-            max_items_per_leaf=max_items_per_leaf
+            Rectangle(-90.0, 90.0, -180.0, 180.0)
         )
 
     def parse(self):
@@ -105,19 +104,6 @@ class WithSpatialIndex(Solution):
             yield format_line(flight, result.closest)
 
 if __name__ == "__main__":
-    # with open("solution1.txt", "w") as output:
-    #     ForForLoop().run(output)
-    #
     # with open("solution2.txt", "w") as output:
-    #     WithSpatialIndex().run(output)
-
-    # algo1 = ForForLoop()
-    # algo1.parse()
-    # print(timeit.timeit(algo1.solve_all, number=1))
-
-    for n in (6, 7, 8, 10, 12):
-        algo2 = WithSpatialIndex(n)
-        time_parse = timeit.timeit(algo2.parse, number=1)
-        time_solve = timeit.timeit(algo2.solve_all, number=1)
-        print("{} -> {:7.4f} + {:7.4f} = {:7.4f}".format(
-            n, time_parse, time_solve, time_parse+time_solve))
+    #    WithSpatialIndex().run(output)
+    WithSpatialIndex().run(sys.stdout)
