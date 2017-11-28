@@ -47,6 +47,12 @@ class Rectangle:
         return (self.left <= point.lat < self.right and
                 self.bottom <= point.lon < self.top)
 
+    def intersects(self, other):
+        return (self.left <= other.right and
+                other.left <= self.right and
+                self.bottom <= other.top and
+                other.bottom <= self.top)
+
     def centric_split(self):
         """Splits a rectangle in 4 equal rectangles
         @:return a list of the new rectangles"""
@@ -58,6 +64,20 @@ class Rectangle:
             Rectangle(middle_x, self.right, self.bottom, middle_y),
             Rectangle(middle_x, self.right, middle_y, self.top)
             ]
+
+
+class ClosestSearchResult:
+    def __init__(self, point):
+        self.point = point
+        self.bounds = Rectangle(-math.inf, math.inf, -math.inf, math.inf)
+        self.closest = None
+
+    def update(self, other_point):
+        distance = self.point.distance_rad(other_point)
+        if self.closest is None or distance < self.point.distance_rad(self.closest):
+            self.closest = other_point
+            self.bounds = Rectangle(self.point.lat - distance, self.point.lat + distance,
+                                    self.point.lon - distance, self.point.lon + distance)
 
 
 class SpatialLeaf:
@@ -76,6 +96,9 @@ class SpatialLeaf:
 
     def __contains__(self, point):
         return point in self.bounds
+
+    def intersects(self, other):
+        return self.bounds.intersects(other)
 
     def split(self):
         new_leaves = [SpatialLeaf(r, self.max_items) for r in self.bounds.centric_split()]
@@ -101,17 +124,11 @@ class SpatialLeaf:
     def __iter__(self):
         return self.points.__iter__()
 
-    def closest(self, other_point):
-        closest = None
-        closest_dist = None
+    def search_closest(self, result):
         for point in self.points:
-            if point == other_point:
+            if point == result.point:
                 continue
-            distance = point.distance_deg(other_point)
-            if closest_dist is None or distance < closest_dist:
-                closest = point
-                closest_dist = distance
-        return closest
+            result.update(point)
 
 
 class SpatialTree:
@@ -140,6 +157,9 @@ class SpatialTree:
     def __contains__(self, point):
         return point in self.bounds
 
+    def intersects(self, other):
+        return self.bounds.intersects(other)
+
     @staticmethod
     def split_of(leaf):
         return SpatialTree(leaf.bounds, leaf.max_items, leaf.split())
@@ -161,7 +181,12 @@ class SpatialTree:
             for point in leaf:
                 yield point
 
-    def closest(self, point):
+    def search_closest(self, result):
         for leaf in self.leaves:
-            if point in leaf:
-                return leaf.closest(point)
+            if result.point in leaf:
+                leaf.search_closest(result)
+        for leaf in self.leaves:
+            if result.point not in leaf:
+                if leaf.intersects(result.bounds):
+                    leaf.search_closest(result)
+
