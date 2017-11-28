@@ -12,20 +12,6 @@ def get_files():
     yield "code_challenge/20170901_080005.csv"
 
 
-def distance(latitude_1, longitude_1, latitude_2, longitude_2):
-    from math import radians, cos, sin, asin, sqrt
-
-    EARTH_RADIUS_KM = 6371.0
-    lat_1_rad = radians(latitude_1)
-    lon_1_rad = radians(longitude_1)
-    lat_2_rad = radians(latitude_2)
-    lon_2_rad = radians(longitude_2)
-    u = sin( (lat_2_rad - lat_1_rad) / 2 )
-    v = sin( (lon_2_rad - lon_1_rad) / 2 )
-
-    return 2 * EARTH_RADIUS_KM * asin( sqrt( u**2 + cos(lat_1_rad) * cos(lat_2_rad) * (v**2) ) )
-
-
 class Flight(Point):
     def __init__(self, call_sign, latitude, longitude):
         super().__init__(latitude, longitude)
@@ -42,8 +28,6 @@ class Flight(Point):
             return None
         return Flight(fields[0], lat, lon)
 
-    def distance(self, other):
-        return distance(self.x, self.y, other.x, other.y)
 
 
 def solution1():
