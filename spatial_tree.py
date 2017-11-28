@@ -19,11 +19,22 @@ class Point:
     def distance_deg(self, other):
         return math.degrees(self.distance_rad(other))
 
+    EARTH_RADIUS_KM = 6371.0
+
+    def distance_geodetic(self, other):
+        return self.EARTH_RADIUS_KM * self.distance_rad(other)
+
+    def distance_geodetic_old(self, other):
+        u = math.sin((other.lat - self.lat) / 2)
+        v = math.sin((other.lon - self.lon) / 2)
+        w = math.sqrt(u ** 2 + math.cos(self.lat) * math.cos(other.lat) * (v ** 2))
+        return 2 * self.EARTH_RADIUS_KM * math.asin(w)
+
 
 class Rectangle:
     def __init__(self, left, right, bottom, top):
-        assert left < right
-        assert bottom < top
+        assert left <= right
+        assert bottom <= top
         self.left = left
         self.right = right
         self.bottom = bottom
