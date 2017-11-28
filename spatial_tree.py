@@ -132,7 +132,7 @@ class SpatialLeaf:
 
 
 class SpatialTree:
-    def __init__(self, bounds, max_items_per_leaf=10, leaves=None):
+    def __init__(self, bounds, max_items_per_leaf=8, leaves=None):
         self.bounds = bounds
         if leaves is None:
             leaves = SpatialLeaf(self.bounds, max_items_per_leaf).split()
