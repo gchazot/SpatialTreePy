@@ -120,7 +120,38 @@ class WithSpatialIndex(Solution):
         return flight
 
 
+class WithRtree(Solution):
+    def __init__(self):
+        self.index = rtree.index.Index()
+        self.flights = []
+
+    @staticmethod
+    def coordinates(flight):
+        return [flight.lat, flight.lon, flight.lat, flight.lon]
+        
+    def parse(self):
+        file_input = fileinput.input(files=get_files())
+        for n, line in enumerate(file_input):
+            flight = Flight.create(line)
+            if flight is None:
+                continue
+            self.flights.append(flight)
+            location = WithRtree.coordinates(flight)
+            self.index.insert(n, location)
+
+    def solve_one(self):
+        for n, flight in enumerate(self.flights):
+            location = WithRtree.coordinates(flight)
+            closest_answers = self.index.nearest(location)
+            for closest in closest_answers:
+                yield n-1, closest-1
+
+    def make_flight(self, flight):
+        return self.flights[flight]
+
+
 if __name__ == "__main__":
     # with open("solution2.txt", "w") as output:
     #    WithSpatialIndex().run(output)
-    WithSpatialIndex().run(sys.stdout)
+    # WithSpatialIndex().run(sys.stdout)
+    WithRtree().run(sys.stdout)
