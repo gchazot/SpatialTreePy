@@ -12,7 +12,7 @@ def debug(*args, **kwargs):
 
 
 def get_files():
-    yield "code_challenge/20170901_080005.csv"
+    yield "data/20170901_080005.csv"
 
 
 class Flight(Point):
