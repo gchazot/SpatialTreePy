@@ -123,12 +123,18 @@ class WithSpatialIndex(Solution):
 
 class WithRtree(Solution):
     def __init__(self):
-        self.index = rtree.index.Index()
+        p = rtree.index.Property()
+        p.dimension = 3
+        self.index = rtree.index.Index(properties=p)
         self.flights = []
 
     @staticmethod
     def coordinates(flight):
-        return [flight.lat, flight.lon, flight.lat, flight.lon]
+        import math
+        coordinates = [math.cos(flight.lat) * math.sin(flight.lon),
+                       math.cos(flight.lat) * math.cos(flight.lon),
+                       math.sin(flight.lat)]
+        return coordinates + coordinates
         
     def parse(self):
         file_input = fileinput.input(files=get_files())
