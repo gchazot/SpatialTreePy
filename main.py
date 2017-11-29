@@ -1,12 +1,9 @@
 import fileinput
 import sys
 from abc import ABCMeta, abstractmethod
-
 import collections
 import rtree
-
 from spatial_tree import Point, Rectangle, SpatialTree, ClosestSearchResult
-import timeit
 
 
 def debug(*args, **kwargs):
@@ -101,6 +98,7 @@ class WithSpatialIndex(Solution):
         self.index = SpatialTree(
             Rectangle(-90.0, 90.0, -180.0, 180.0)
         )
+        self.flights = []
 
     def parse(self):
         for line in fileinput.input(files=get_files()):
@@ -108,12 +106,13 @@ class WithSpatialIndex(Solution):
             if flight is None:
                 continue
             self.index.add(flight)
+            self.flights.append(flight)
 
     def solve_one(self):
-        for flight in self.index:
+        for flight in self.flights:
             result = ClosestSearchResult(flight)
             self.index.search_closest(result)
-            yield (flight, result.closest)
+            yield flight, result.closest
 
     def make_flight(self, flight):
         return flight
