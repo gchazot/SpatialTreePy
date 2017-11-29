@@ -2,6 +2,9 @@ import fileinput
 import sys
 from abc import ABCMeta, abstractmethod
 
+import collections
+import rtree
+
 from spatial_tree import Point, Rectangle, SpatialTree, ClosestSearchResult
 import timeit
 
@@ -27,7 +30,6 @@ class Flight(Point):
             lat = float(fields[1])
             lon = float(fields[2])
         except ValueError:
-            #debug("Not a flight: " + line)
             return None
         return Flight(fields[0], lat, lon)
 
@@ -41,22 +43,30 @@ def format_line(flight_1, flight_2):
 
 
 class Solution(metaclass=ABCMeta):
+    def run(self, output_file=None):
+        self.parse()
+        self.solve_all(output_file)
+
     @abstractmethod
     def parse(self):
         pass
 
-    @abstractmethod
-    def solve_one(self):
-        pass
-
     def solve_all(self, output_file=None):
-        for line in self.solve_one():
+        for target, closest in self.solve_one():
             if output_file is not None:
+                line = self.make_line(target, closest)
                 print(line, file=output_file)
 
-    def run(self, output_file=None):
-        self.parse()
-        self.solve_all(output_file)
+    @abstractmethod
+    def solve_one(self):
+        return collections.Iterable()
+
+    def make_line(self, target, closest):
+        return format_line(self.make_flight(target), self.make_flight(closest))
+
+    @abstractmethod
+    def make_flight(self, flight):
+        return Flight("", 0, 0)
 
 
 class ForForLoop(Solution):
@@ -81,7 +91,10 @@ class ForForLoop(Solution):
                 if closest_distance is None or distance < closest_distance:
                     closest_distance = distance
                     closest_flight = f2
-            yield format_line(f1, closest_flight)
+            yield (f1, closest_flight)
+
+    def make_flight(self, flight):
+        return flight
 
 
 class WithSpatialIndex(Solution):
@@ -101,7 +114,11 @@ class WithSpatialIndex(Solution):
         for flight in self.index:
             result = ClosestSearchResult(flight)
             self.index.search_closest(result)
-            yield format_line(flight, result.closest)
+            yield (flight, result.closest)
+
+    def make_flight(self, flight):
+        return flight
+
 
 if __name__ == "__main__":
     # with open("solution2.txt", "w") as output:
