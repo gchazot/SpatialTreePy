@@ -103,7 +103,8 @@ class WithSpatialIndex(Solution):
         self.flights = []
 
     def parse(self):
-        for line in fileinput.input(files=get_files()):
+        file_input = fileinput.input(files=get_files())
+        for line in file_input:
             flight = Flight.create(line)
             if flight is None:
                 continue
