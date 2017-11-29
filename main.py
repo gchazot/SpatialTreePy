@@ -129,20 +129,24 @@ class WithRtree(Solution):
         
     def parse(self):
         file_input = fileinput.input(files=get_files())
-        for n, line in enumerate(file_input):
+        n = 0
+        for line in file_input:
             flight = Flight.create(line)
             if flight is None:
                 continue
             self.flights.append(flight)
             location = WithRtree.coordinates(flight)
             self.index.insert(n, location)
+            n += 1
 
     def solve_one(self):
         for n, flight in enumerate(self.flights):
             location = WithRtree.coordinates(flight)
+            self.index.delete(n, location)
             closest_answers = self.index.nearest(location)
             for closest in closest_answers:
-                yield n-1, closest-1
+                yield n, closest
+            self.index.insert(n, location)
 
     def make_flight(self, flight):
         return self.flights[flight]
