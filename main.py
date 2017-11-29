@@ -69,7 +69,7 @@ class Solution(metaclass=ABCMeta):
         return Flight("", 0, 0)
 
 
-class ForForLoop(Solution):
+class WithForForLoop(Solution):
     def __init__(self):
         self.flights = []
 
