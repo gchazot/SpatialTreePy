@@ -142,11 +142,10 @@ class WithRtree(Solution):
     def solve_one(self):
         for n, flight in enumerate(self.flights):
             location = WithRtree.coordinates(flight)
-            self.index.delete(n, location)
-            closest_answers = self.index.nearest(location)
+            closest_answers = self.index.nearest(location, num_results=2)
             for closest in closest_answers:
+                if n != closest:
                 yield n, closest
-            self.index.insert(n, location)
 
     def make_flight(self, flight):
         return self.flights[flight]
