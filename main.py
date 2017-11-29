@@ -32,10 +32,12 @@ class Flight(Point):
 
 
 def format_line(flight_1, flight_2):
-    return "{:8} {:8} {:8.2f}".format(
+    return "{:8} {:8} {:8.2f} -- {:8.5f},{:8.5f} - {:8.5f},{:8.5f}".format(
         flight_1.call_sign,
         flight_2.call_sign,
-        flight_1.distance_geodetic(flight_2))
+        flight_1.distance_geodetic(flight_2),
+        flight_1.lat, flight_1.lon,
+        flight_2.lat, flight_2.lon)
 
 
 class Solution(metaclass=ABCMeta):
