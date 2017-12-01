@@ -2,6 +2,7 @@ import fileinput
 import sys
 from abc import ABCMeta, abstractmethod
 import collections
+import math
 import rtree
 from spatial_tree import Point, Rectangle, SpatialTree, ClosestSearchResult
 
@@ -98,7 +99,7 @@ class WithForForLoop(Solution):
 class WithSpatialIndex(Solution):
     def __init__(self):
         self.index = SpatialTree(
-            Rectangle(-90.0, 90.0, -180.0, 180.0)
+            Rectangle(-math.pi/2, math.pi/2, -math.pi, math.pi)
         )
         self.flights = []
 
@@ -130,7 +131,6 @@ class WithRtree(Solution):
 
     @staticmethod
     def coordinates(flight):
-        import math
         coordinates = [math.cos(flight.lat) * math.sin(flight.lon),
                        math.cos(flight.lat) * math.cos(flight.lon),
                        math.sin(flight.lat)]
