@@ -30,6 +30,9 @@ class Point:
         w = math.sqrt(u ** 2 + math.cos(self.lat) * math.cos(other.lat) * (v ** 2))
         return 2 * self.EARTH_RADIUS_KM * math.asin(w)
 
+    def distance_straight(self, other):
+        return 2 * self.EARTH_RADIUS_KM * math.sin(self.distance_rad(other) / 2)
+
 
 class Rectangle:
     def __init__(self, left, right, bottom, top):
