@@ -103,7 +103,7 @@ class WithForForLoop(Solution):
 class WithSpatialIndex(Solution):
     def __init__(self):
         self.index = SpatialTree(
-            Rectangle(-math.pi/2, math.pi/2, -math.pi, math.pi)
+            Rectangle(-math.pi/2, -math.pi, math.pi/2, math.pi)
         )
         self.flights = []
 

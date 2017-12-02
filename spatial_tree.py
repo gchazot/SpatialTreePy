@@ -35,44 +35,44 @@ class Point:
 
 
 class Rectangle:
-    def __init__(self, left, right, bottom, top):
-        assert left <= right
+    def __init__(self, bottom, left, top, right):
         assert bottom <= top
-        self.left = left
-        self.right = right
+        assert left <= right
         self.bottom = bottom
+        self.left = left
         self.top = top
+        self.right = right
 
     def __str__(self):
         return "{bottom}:{left}/{top}:{right}".format(**self.__dict__)
 
     def __contains__(self, point):
-        return (self.left <= point.lat < self.right and
-                self.bottom <= point.lon < self.top)
+        return (self.bottom <= point.lat < self.top and
+                self.left <= point.lon < self.right)
 
     def intersects(self, other):
-        return (self.left <= other.right and
-                other.left <= self.right and
-                self.bottom <= other.top and
-                other.bottom <= self.top)
+        return (self.bottom <= other.top and
+                other.bottom <= self.top and
+                self.left <= other.right and
+                other.left <= self.right)
 
     def centric_split(self):
         """Splits a rectangle in 4 equal rectangles
         @:return a list of the new rectangles"""
-        middle_x = (self.right + self.left) / 2.0
-        middle_y = (self.top + self.bottom) / 2.0
+        middle_lat = (self.top + self.bottom) / 2.0
+        middle_lon = (self.right + self.left) / 2.0
         return [
-            Rectangle(self.left, middle_x, self.bottom, middle_y),
-            Rectangle(self.left, middle_x, middle_y, self.top),
-            Rectangle(middle_x, self.right, self.bottom, middle_y),
-            Rectangle(middle_x, self.right, middle_y, self.top)
+            Rectangle(self.bottom, self.left, middle_lat, middle_lon),
+            Rectangle(self.bottom, middle_lon, middle_lat, self.right),
+            Rectangle(middle_lat, self.left, self.top, middle_lon),
+            Rectangle(middle_lat, middle_lon, self.top, self.right)
             ]
 
 
 class ClosestSearchResult:
     def __init__(self, point):
         self.point = point
-        self.bounds = Rectangle(-math.inf, math.inf, -math.inf, math.inf)
+        self.bounds = Rectangle(-math.inf, -math.inf, math.inf, math.inf)
         self.closest = None
         self.closest_dist = None
 
@@ -82,8 +82,8 @@ class ClosestSearchResult:
             self.closest = other_point
             self.closest_dist = distance
             box_size = self.point.distance_rad(other_point)
-            self.bounds = Rectangle(self.point.lat - box_size, self.point.lat + box_size,
-                                    self.point.lon - box_size, self.point.lon + box_size)
+            self.bounds = Rectangle(self.point.lat - 2 * box_size, self.point.lon - 2 * box_size,
+                                    self.point.lat + 2 * box_size, self.point.lon + 2 * box_size)
 
 
 class SpatialLeaf:
@@ -107,7 +107,7 @@ class SpatialLeaf:
         return self.bounds.intersects(other)
 
     def split(self):
-        new_leaves = [SpatialLeaf(r, self.max_items) for r in self.bounds.centric_split()]
+        new_leaves = [SpatialLeaf(rect, self.max_items) for rect in self.bounds.centric_split()]
         for point in self.points:
             for leaf in new_leaves:
                 if point in leaf:
