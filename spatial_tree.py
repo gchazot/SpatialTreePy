@@ -90,14 +90,42 @@ class ClosestSearchResult:
             self.closest = other_point
             self.closest_dist = distance
 
+    def delta_lon(self, lon):
+        angle = abs(self.point.lon - lon)
+        if angle > math.pi:
+            angle = 2 * math.pi - angle
+        return angle
+
+    def dist_to_meridian(self, lon):
+        return math.asin(math.cos(self.point.lat) * math.sin(self.delta_lon(lon)))
+
+    def lat_at_meridian(self, lon):
+        return math.pi / 2 - math.atan(math.cos(self.delta_lon(lon)) / math.tan(abs(self.point.lat)))
+
+    def intercept_meridian(self, lon):
+        return Point(self.lat_at_meridian(lon), lon)
+
     def intersects(self, bounds):
-        if self.closest is None:
+        if self.closest is None or self.point in bounds:
             return True
 
-        box_size = self.closest_dist
-        rect = Rectangle(self.point.lat - box_size, self.point.lon - box_size,
-                         self.point.lat + box_size, self.point.lon + box_size)
-        return rect.intersects(bounds)
+        if bounds.left <= self.point.lon <= bounds.right:
+            min_dist = min(abs(self.point.lat - bounds.top),
+                           abs(self.point.lat - bounds.bottom))
+        elif (bounds.left + math.pi) % math.pi <= (self.point.lon + math.pi) % math.pi <= (bounds.right + math.pi) % math.pi:
+            min_dist = min(math.pi - abs(self.point.lat + bounds.top),
+                           math.pi - abs(self.point.lat + bounds.bottom))
+        else:
+            closest_to_left = self.intercept_meridian(bounds.left)
+            closest_to_right = self.intercept_meridian(bounds.right)
+
+            points = list(bounds.corners())
+            points.append(closest_to_left)
+            points.append(closest_to_right)
+
+            min_dist = min(list(map(self.distance, points)))
+
+        return min_dist <= self.closest_dist
 
 
 class SpatialLeaf:
