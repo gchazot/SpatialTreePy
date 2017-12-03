@@ -191,6 +191,7 @@ class SpatialTree:
         for leaf in self.leaves:
             if result.point in leaf:
                 leaf.search_closest(result)
+                break
         for leaf in self.leaves:
             if result.point not in leaf:
                 if leaf.intersects(result.bounds):
