@@ -56,6 +56,12 @@ class Rectangle:
                 self.left <= other.right and
                 other.left <= self.right)
 
+    def corners(self):
+        return (Point(self.bottom, self.left),
+                Point(self.bottom, self.right),
+                Point(self.top, self.left),
+                Point(self.top, self.right))
+
     def centric_split(self):
         """Splits a rectangle in 4 equal rectangles
         @:return a list of the new rectangles"""
