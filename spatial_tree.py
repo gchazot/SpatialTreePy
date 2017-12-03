@@ -78,18 +78,26 @@ class Rectangle:
 class ClosestSearchResult:
     def __init__(self, point):
         self.point = point
-        self.bounds = Rectangle(-math.inf, -math.inf, math.inf, math.inf)
         self.closest = None
         self.closest_dist = None
 
+    def distance(self, other_point):
+        return self.point.distance_rad(other_point)
+
     def update(self, other_point):
-        distance = self.point.distance_rad(other_point)
+        distance = self.distance(other_point)
         if self.closest is None or distance < self.closest_dist:
             self.closest = other_point
             self.closest_dist = distance
-            box_size = self.point.distance_rad(other_point)
-            self.bounds = Rectangle(self.point.lat - 2 * box_size, self.point.lon - 2 * box_size,
-                                    self.point.lat + 2 * box_size, self.point.lon + 2 * box_size)
+
+    def intersects(self, bounds):
+        if self.closest is None:
+            return True
+
+        box_size = self.closest_dist
+        rect = Rectangle(self.point.lat - box_size, self.point.lon - box_size,
+                         self.point.lat + box_size, self.point.lon + box_size)
+        return rect.intersects(bounds)
 
 
 class SpatialLeaf:
@@ -200,6 +208,6 @@ class SpatialTree:
                 break
         for leaf in self.leaves:
             if result.point not in leaf:
-                if leaf.intersects(result.bounds):
+                if result.intersects(leaf.bounds):
                     leaf.search_closest(result)
 
