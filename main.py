@@ -36,13 +36,17 @@ class Flight(Point):
 
 
 def format_line(flight_1, flight_2):
-    return "{:8} {:8} {:8.2f} {:9.7f} -- {:10.7f},{:10.7f} - {:10.7f},{:10.7f}".format(
+    return "{:8} {:8} {:8.2f}".format(
         flight_1.call_sign,
         flight_2.call_sign,
-        flight_1.distance_geodetic(flight_2),
-        flight_1.distance_rad(flight_2),
-        flight_1.lat, flight_1.lon,
-        flight_2.lat, flight_2.lon)
+        flight_1.distance_geodetic(flight_2))
+    # return "{:8} {:8} {:8.2f} {:9.7f} -- {:10.7f},{:10.7f} - {:10.7f},{:10.7f}".format(
+    #     flight_1.call_sign,
+    #     flight_2.call_sign,
+    #     flight_1.distance_geodetic(flight_2),
+    #     flight_1.distance_rad(flight_2),
+    #     flight_1.lat, flight_1.lon,
+    #     flight_2.lat, flight_2.lon)
 
 
 class Solution(metaclass=ABCMeta):
@@ -158,7 +162,7 @@ class WithRtree(Solution):
             closest_answers = self.index.nearest(location, num_results=2)
             for closest in closest_answers:
                 if n != closest:
-                yield n, closest
+                    yield n, closest
 
     def make_flight(self, flight):
         return self.flights[flight]
@@ -167,5 +171,13 @@ class WithRtree(Solution):
 if __name__ == "__main__":
     # with open("solution2.txt", "w") as output:
     #    WithSpatialIndex().run(output)
-    # WithSpatialIndex().run(sys.stdout)
-    WithRtree().run(sys.stdout)
+    WithSpatialIndex().run(sys.stdout)
+    #WithRtree().run(sys.stdout)
+
+    # import timeit
+    # solution1 = WithSpatialIndex()
+    # solution2 = WithRtree()
+    # solution1.parse()
+    # solution2.parse()
+    # print(timeit.timeit(solution1.solve_all, number=10))
+    # print(timeit.timeit(solution2.solve_all, number=10))
